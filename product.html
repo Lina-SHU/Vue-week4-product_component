@@ -25,11 +25,13 @@
         <div class="col mt-3">
           <div class="alert alert-success alert-dismissible fade show" role="alert" v-if="feedbackInfo">
             {{ isNew? '新增商品成功': '編輯商品成功'}}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @click="closeFeedback"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
+              @click="closeFeedback"></button>
           </div>
           <div class="alert alert-danger alert-dismissible fade show" role="alert" v-if="alertInfo">
             刪除商品成功
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @click="closeFeedback"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
+              @click="closeFeedback"></button>
           </div>
           <table class="table table-striped table-hover mt-3">
             <thead>
@@ -52,7 +54,8 @@
                   <td :class="{'text-info': product.is_enabled}">{{ product.is_enabled? '啟用':'未啟用' }}</td>
                   <td>
                     <button type="button" class="btn btn-primary me-2" @click="openModal('edit', product)">編輯</button>
-                    <button type="button" class="btn btn-outline-danger" @click="openModal('delete', product)">刪除</button>
+                    <button type="button" class="btn btn-outline-danger"
+                      @click="openModal('delete', product)">刪除</button>
                   </td>
                 </tr>
               </template>
@@ -60,97 +63,24 @@
           </table>
         </div>
       </div>
+      <!--paginationl-->
+      <pagination :pages="pages" @get-product="getProduct"></pagination>
+
     </div>
 
     <!--update modal-->
-    <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header bg-primary text-white">
-            <h5 class="modal-title" id="exampleModalLabel" v-if="isNew">新增商品</h5>
-            <h5 class="modal-title" id="exampleModalLabel" v-else>編輯商品</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click='close'></button>
-          </div>
-          <div class="modal-body">
-            <form>
-              <div class="mb-3">
-                <label for="productName" class="form-label">商品名稱<span class="text-danger">(必填)</span></label>
-                <input type="text" class="form-control" id="productName" placeholder="動物園造型衣服" v-model="tempProduct.title">
-              </div>
+    <update-modal :temp-product="tempProduct" :is-new="isNew" @close='close' @update-product="updateProduct">
+    </update-modal>
 
-              <div class="row">
-                <div class="col">
-                  <label for="productUnit" class="form-label">商品單位<span class="text-danger">(必填)</span></label>
-                  <input type="text" class="form-control" id="productUnit" placeholder="個" v-model="tempProduct.unit">
-                </div>
-                <div class="col">
-                  <label for="productCategory" class="form-label">商品種類<span class="text-danger">(必填)</span></label>
-                  <input type="text" class="form-control" id="productCategory" placeholder="衣服" v-model="tempProduct.category">
-                </div>
-              </div>
-              <div class="row mt-2">
-                <div class="col">
-                  <label for="productOriginPrice" class="form-label">商品原價<span class="text-danger">(必填)</span></label>
-                  <input type="number" class="form-control" id="productOriginPrice" v-model.number="tempProduct.price">
-                </div>
-                <div class="col">
-                  <label for="productPrice" class="form-label">商品售價<span class="text-danger">(必填)</span></label>
-                  <input type="number" class="form-control" id="productPrice" v-model.number="tempProduct['origin_price']">
-                </div>
-              </div>
-              <div class="mb-3 mt-2">
-                <label for="productContent" class="form-label">商品內容</label>
-                <input type="text" class="form-control" id="productContent" placeholder="商品內容" v-model="tempProduct.content">
-              </div>
-              <div class="mb-3">
-                <label for="productDesc" class="form-label">商品描述</label>
-                <textarea class="form-control" id="productDesc" row="3" placeholder="Sit down please 名設計師設計" v-model="tempProduct.description"></textarea>
-              </div>
-              <div class="mb-3 mt-2">
-                <label for="productImage" class="form-label">商品主要圖片</label>
-                <input type="url" class="form-control" id="productImage" v-model="tempProduct.imageUrl">
-                <img :src="tempProduct.imageUrl" alt="img" v-if="tempProduct.imageUrl" class='img-fluid mt-2'>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="tempProduct['is_enabled']" id="enabled" v-model="tempProduct['is_enabled']" :true-value='1' :false-value='0'>
-                <label class="form-check-label" for="enabled">
-                  是否啟用
-                </label>
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline-secondary" @click='close'>取消</button>
-            <button type="button" class="btn btn-primary" @click='updateProduct(tempProduct.id)'>編輯</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!--update modal-->
-    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header bg-danger text-white">
-            <h5 class="modal-title" id="exampleModalLabel">刪除商品</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click='close'></button>
-          </div>
-          <div class="modal-body">
-            是否刪除 {{tempProduct.title}}? (刪除後無法恢復)
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline-secondary" @click='close'>取消</button>
-            <button type="button" class="btn btn-danger" @click='deleteProduct(tempProduct.id)'>刪除</button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!--delete modal-->
+    <delete-product :temp-product="tempProduct" @close='close' @delete-product="deleteProduct"></delete-product>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4"
     crossorigin="anonymous"></script>
-  <script>
+  <script type="module">
+    import pagination from './js/pagination.js';
     let modal = '';
     let delModal = '';
 
@@ -160,45 +90,50 @@
           apiUrl: 'https://vue3-course-api.hexschool.io/',
           path: 'linachen',
           productList: [],
-          tempProduct:{
-            imagesUrl:[]
+          tempProduct: {
+            imagesUrl: []
           },
           isNew: true,
           feedbackInfo: false,
-          alertInfo: false
+          alertInfo: false,
+          pages: []
         }
       },
+      components:{
+        pagination
+      },
       methods: {
-        getProduct() {
-          axios.get(`${this.apiUrl}api/${this.path}/admin/products`)
+        getProduct(page =1) {
+          axios.get(`${this.apiUrl}api/${this.path}/admin/products?page=${page}`)
             .then(res => {
               if (res.data.success) {
                 console.log(res);
                 this.productList = res.data.products;
+                this.pages = res.data.pagination;
               } else {
                 alert('取得商品錯誤');
               }
             })
         },
         openModal(isNew, item) {
-          if(isNew === 'new'){
+          if (isNew === 'new') {
             this.isNew = true;
             modal.show();
-          }else if(isNew === 'edit'){
+          } else if (isNew === 'edit') {
             this.tempProduct = JSON.parse(JSON.stringify(item));
             this.isNew = false;
             modal.show();
-          }else if(isNew === 'delete'){
+          } else if (isNew === 'delete') {
             this.tempProduct = JSON.parse(JSON.stringify(item));
             delModal.show();
           }
         },
-        updateProduct(id){
-          if(!this.tempProduct.title || !this.tempProduct.unit || !this.tempProduct.category || !this.tempProduct['origin_price'] || !this.tempProduct.price){
+        updateProduct(id) {
+          if (!this.tempProduct.title || !this.tempProduct.unit || !this.tempProduct.category || !this.tempProduct['origin_price'] || !this.tempProduct.price) {
             alert('必填欄位皆須填寫!');
             return;
           }
-          if(this.isNew){
+          if (this.isNew) {
             axios.post(`${this.apiUrl}api/${this.path}/admin/product`, { data: this.tempProduct })
               .then(res => {
                 console.log(res);
@@ -216,62 +151,63 @@
               .catch(err => {
                 console.log(err);
               })
-          }else{
+          } else {
             axios.put(`${this.apiUrl}api/${this.path}/admin/product/${id}`, { data: this.tempProduct })
-            .then(res=>{
-              console.log(res);
+              .then(res => {
+                console.log(res);
+                if (res.data.success) {
+                  this.getProduct();
+                  this.tempProduct = {
+                    imagesUrl: []
+                  };
+                  this.feedbackInfo = true;
+                  modal.hide();
+                } else {
+                  alert('編輯商品錯誤');
+                }
+              })
+          }
+
+        },
+        deleteProduct(id) {
+          axios.delete(`${this.apiUrl}api/${this.path}/admin/product/${id}`)
+            .then(res => {
               if (res.data.success) {
                 this.getProduct();
                 this.tempProduct = {
                   imagesUrl: []
                 };
-                this.feedbackInfo = true;
-                modal.hide();
+                this.alertInfo = true;
+                delModal.hide();
               } else {
-                alert('編輯商品錯誤');
+                alert('刪除商品錯誤');
               }
             })
-          }
-          
         },
-        deleteProduct(id){
-          axios.delete(`${this.apiUrl}api/${this.path}/admin/product/${id}`)
-          .then(res=>{
-            if (res.data.success) {
-              this.getProduct();
-              this.tempProduct = {
-                imagesUrl: []
-              };
-              this.alertInfo = true;
-              delModal.hide();
-            } else {
-              alert('刪除商品錯誤');
-            }
-          })
-        },
-        close(){
-          this.tempProduct={
+        close() {
+          this.tempProduct = {
             imagesUrl: []
           };
           modal.hide();
+          delModal.hide();
         },
         closeFeedback() {
           this.feedbackInfo = false;
           this.alertInfo = false;
         },
-        logouts(){
+        logouts() {
           axios.post(`${this.apiUrl}logout`)
-          .then(res =>{
-            if(res.data.success){
-              window.location='./index.html';
-              document.cookie = 'myToken=; expires=; path=/';
-            }else{
-              alert('登出失敗')
-            }
-          })
-          .catch(err=>{
-            console.log(err);
-          })
+            .then(res => {
+              if (res.data.success) {
+                window.location = './index.html';
+                document.cookie = 'myToken=; expires=; path=/';
+              } else {
+                alert('登出失敗')
+              }
+            })
+            .catch(err => {
+              console.log(err);
+            })
         }
       },
       mounted() {
@@ -286,6 +222,98 @@
         this.getProduct();
       }
     });
+
+    app.component('update-modal', {
+      props: ['tempProduct', 'isNew'],
+      template: `
+        <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+              <h5 class="modal-title" id="exampleModalLabel" v-if="isNew">新增商品</h5>
+              <h5 class="modal-title" id="exampleModalLabel" v-else>編輯商品</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="$emit('close')"></button>
+            </div>
+            <div class="modal-body">
+              <form>
+                <div class="mb-3">
+                  <label for="productName" class="form-label">商品名稱<span class="text-danger">(必填)</span></label>
+                  <input type="text" class="form-control" id="productName" placeholder="動物園造型衣服" v-model="tempProduct.title">
+                </div>
+
+                <div class="row">
+                  <div class="col">
+                    <label for="productUnit" class="form-label">商品單位<span class="text-danger">(必填)</span></label>
+                    <input type="text" class="form-control" id="productUnit" placeholder="個" v-model="tempProduct.unit">
+                  </div>
+                  <div class="col">
+                    <label for="productCategory" class="form-label">商品種類<span class="text-danger">(必填)</span></label>
+                    <input type="text" class="form-control" id="productCategory" placeholder="衣服" v-model="tempProduct.category">
+                  </div>
+                </div>
+                <div class="row mt-2">
+                  <div class="col">
+                    <label for="productOriginPrice" class="form-label">商品原價<span class="text-danger">(必填)</span></label>
+                    <input type="number" class="form-control" id="productOriginPrice" v-model.number="tempProduct.price">
+                  </div>
+                  <div class="col">
+                    <label for="productPrice" class="form-label">商品售價<span class="text-danger">(必填)</span></label>
+                    <input type="number" class="form-control" id="productPrice" v-model.number="tempProduct['origin_price']">
+                  </div>
+                </div>
+                <div class="mb-3 mt-2">
+                  <label for="productContent" class="form-label">商品內容</label>
+                  <input type="text" class="form-control" id="productContent" placeholder="商品內容" v-model="tempProduct.content">
+                </div>
+                <div class="mb-3">
+                  <label for="productDesc" class="form-label">商品描述</label>
+                  <textarea class="form-control" id="productDesc" row="3" placeholder="Sit down please 名設計師設計" v-model="tempProduct.description"></textarea>
+                </div>
+                <div class="mb-3 mt-2">
+                  <label for="productImage" class="form-label">商品主要圖片</label>
+                  <input type="url" class="form-control" id="productImage" v-model="tempProduct.imageUrl">
+                  <img :src="tempProduct.imageUrl" alt="img" v-if="tempProduct.imageUrl" class='img-fluid mt-2'>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="tempProduct['is_enabled']" id="enabled" v-model="tempProduct['is_enabled']" :true-value='1' :false-value='0'>
+                  <label class="form-check-label" for="enabled">
+                    是否啟用
+                  </label>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" @click="$emit('close')">取消</button>
+              <button type="button" class="btn btn-primary" @click="$emit('update-product', tempProduct.id)">編輯</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      `
+    });
+
+    app.component('delete-product', {
+      props: ['tempProduct'],
+      template: `
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+              <h5 class="modal-title" id="exampleModalLabel">刪除商品</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="$emit('close')"></button>
+            </div>
+            <div class="modal-body">
+              是否刪除 {{tempProduct.title}}? (刪除後無法恢復)
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" @click="$emit('close')">取消</button>
+              <button type="button" class="btn btn-danger" @click="$emit('delete-product',tempProduct.id )">刪除</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      `
+    })
 
     app.mount('#app');
   </script>
