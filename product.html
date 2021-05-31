@@ -16,7 +16,7 @@
   <div id="app">
     <div class="container mt-5">
       <div class="d-flex justify-content-between">
-        <button class="btn btn-outline-dark" type="button">登出</button>
+        <button class="btn btn-outline-dark" type="button" @click="logouts">登出</button>
         <button type="button" class="btn btn-primary" id='modalBtn' @click="openModal('new')">
           建立新商品
         </button>
@@ -258,6 +258,20 @@
         closeFeedback() {
           this.feedbackInfo = false;
           this.alertInfo = false;
+        },
+        logouts(){
+          axios.post(`${this.apiUrl}logout`)
+          .then(res =>{
+            if(res.data.success){
+              window.location='./index.html';
+              document.cookie = 'myToken=; expires=; path=/';
+            }else{
+              alert('登出失敗')
+            }
+          })
+          .catch(err=>{
+            console.log(err);
+          })
         }
       },
       mounted() {
