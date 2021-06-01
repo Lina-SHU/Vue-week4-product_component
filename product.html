@@ -130,13 +130,13 @@
           }
         },
         logout() {
-          axios.post(`${this.apiUrl}logout`)
+          axios.post(`${apiUrl}logout`)
             .then(res => {
               if (res.data.success) {
                 window.location = './index.html';
                 document.cookie = 'myToken=; expires=; path=/';
               } else {
-                alert('登出失敗')
+                alert('登出失敗');
               }
             })
             .catch(err => {
