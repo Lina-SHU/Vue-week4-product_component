@@ -113,11 +113,11 @@ export default {
                 <div class="row mt-2">
                   <div class="col">
                     <label for="productOriginPrice" class="form-label">商品原價<span class="text-danger">(必填)</span></label>
-                    <input type="number" class="form-control" id="productOriginPrice" v-model.number="product.price">
+                    <input type="number" class="form-control" id="productOriginPrice" v-model.number="product['origin_price']">
                   </div>
                   <div class="col">
                     <label for="productPrice" class="form-label">商品售價<span class="text-danger">(必填)</span></label>
-                    <input type="number" class="form-control" id="productPrice" v-model.number="product['origin_price']">
+                    <input type="number" class="form-control" id="productPrice" v-model.number="product.price">
                   </div>
                 </div>
                 <div class="mb-3 mt-2">
