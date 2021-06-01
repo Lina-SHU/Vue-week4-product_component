@@ -55,7 +55,7 @@
     </div>
 
     <!--update modal: 使用 ref 讓外層可以取到 MODAL DOM 元素-->
-    <update-product ref="productModal" :product="tempProduct" :new-title="newTitle" @get-product='getProduct' @feedback="feedback">
+    <update-product ref="productModal" :product="tempProduct" :new-title="newTitle" :current-page="pages.current_page" @get-product='getProduct' @feedback="feedback">
     </update-product>
 
     <!--delete modal: 使用 ref 讓外層可以取到 MODAL DOM 元素-->

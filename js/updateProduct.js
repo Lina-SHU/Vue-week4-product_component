@@ -12,6 +12,10 @@ export default {
     newTitle: {
       type: Boolean,
       default: true,
+    },
+    currentPage:{
+      type: Number,
+      default: 1
     }
   },
   data() {
@@ -47,7 +51,7 @@ export default {
           .then(res => {
             console.log(res);
             if (res.data.success) {
-              this.$emit('getProduct');
+              this.$emit('getProduct', this.currentPage);
               this.$emit('feedback');
               this.hideModal();
             } else {
