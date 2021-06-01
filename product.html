@@ -16,25 +16,23 @@
   <div id="app">
     <div class="container mt-5">
       <div class="d-flex justify-content-between">
-        <button class="btn btn-outline-dark" type="button" @click="logouts">登出</button>
+        <button class="btn btn-outline-dark" type="button" @click="logout">登出</button>
         <button type="button" class="btn btn-primary" id='modalBtn' @click="openModal('new')">
           建立新商品
         </button>
       </div>
       <div class="row">
-        <div class="alert alert-success alert-dismissible fade show" role="alert" v-if="feedbackInfo">
-          {{ isNew? '新增商品成功': '編輯商品成功'}}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
-            @click="closeFeedback"></button>
+        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert" v-if="feedbackInfo">
+          確認商品成功
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @click='hideFeedback'></button>
         </div>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert" v-if="alertInfo">
+        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert" v-if="alertInfo">
           刪除商品成功
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
-            @click="closeFeedback"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @click='hideFeedback'></button>
         </div>
         <div class="col-sm-6 col-md-4 mt-3" v-for='item in productList' :key="item.id+'1'">
           <div class="card shadow">
-            <img :src="item.imageUrl " class="card-img-top" alt="img">
+            <img :src="item.imageUrl " class="card-img-top" alt="img" v-show="item.imageUrl">
             <div class="card-body">
               <div class="d-flex justify-content-between">
                 <h3 class="h5">{{ item.title }}</h3>
@@ -57,11 +55,11 @@
     </div>
 
     <!--update modal-->
-    <update-modal ref="productModal" :product="tempProduct" :new-title="newTitle" @get-product='getProduct'>
+    <update-modal ref="productModal" :product="tempProduct" :new-title="newTitle" @get-product='getProduct' @feedback="feedback">
     </update-modal>
 
     <!--delete modal-->
-    <delete-product ref="deleteModal" :product="tempProduct" @get-product='getProduct'></delete-product>
+    <delete-product ref="deleteModal" :product="tempProduct" @get-product='getProduct' @alert-feedback='alertFeedback'></delete-product>
   </div>
   <style>
     .card img {
@@ -102,7 +100,6 @@
           axios.get(`${apiUrl}api/${path}/admin/products?page=${page}`)
             .then(res => {
               if (res.data.success) {
-                console.log(res);
                 this.productList = res.data.products;
                 this.pages = res.data.pagination;
               } else {
@@ -118,20 +115,17 @@
               imagesUrl: []
             };
             this.$refs.productModal.openModal();
+            
           } else if (isNew === 'edit') {
             this.tempProduct = JSON.parse(JSON.stringify(item));
             this.newTitle = false;
-            this.$refs.productModal.openModal();
+            this.$refs.productModal.openModal();           
           } else if (isNew === 'delete') {
             this.tempProduct = JSON.parse(JSON.stringify(item));
             this.$refs.deleteModal.openModal();
           }
         },
-        closeFeedback() {
-          this.feedbackInfo = false;
-          this.alertInfo = false;
-        },
-        logouts() {
+        logout() {
           axios.post(`${this.apiUrl}logout`)
             .then(res => {
               if (res.data.success) {
@@ -144,6 +138,16 @@
             .catch(err => {
               console.log(err);
             })
+        },
+        feedback(){
+          this.feedbackInfo = true;
+        },
+        hideFeedback(){
+          this.feedbackInfo = false;
+          this.alertInfo = false;
+        },
+        alertFeedback(){
+          this.alertInfo = true;
         }
       },
       mounted() {
@@ -186,10 +190,10 @@
             axios.post(`${apiUrl}api/${path}/admin/product`, { data: this.product })
               .then(res => {
                 console.log(res);
-                if (res.data.success) {
-                  this.hideModal();
+                if (res.data.success) { 
                   this.$emit('getProduct');
-                  //this.feedbackInfo = true;
+                  this.$emit('feedback');
+                  this.hideModal();
                 } else {
                   alert('新增商品錯誤');
                 }
@@ -203,8 +207,8 @@
                 console.log(res);
                 if (res.data.success) {
                   this.$emit('getProduct');
-                  this.close()
-                  //this.feedbackInfo = true;
+                  this.$emit('feedback');
+                  this.hideModal();
                 } else {
                   alert('編輯商品錯誤');
                 }
@@ -225,7 +229,6 @@
           axios.post(`${apiUrl}api/${path}/admin/upload`, formData)
             .then(res => {
               if(res.data.success){
-                console.log(res);
                 this.product.imageUrl = res.data.imageUrl;
                 fileInput.value="";
               }else{
@@ -277,7 +280,7 @@
                   </div>
                 </div>
                 <div class="mb-3 mt-2">
-                  <h6>商品尺寸</h6>
+                  <h6>商品尺寸<span class="text-danger">(必填)</span></h6>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="checkbox" id="sizeS" value="S" v-model="product.size" :disabled="product.size.indexOf('F') !== -1">
                     <label class="form-check-label" for="sizeS">S</label>
@@ -304,7 +307,7 @@
                   <textarea class="form-control" id="productDesc" row="3" placeholder="Sit down please 名設計師設計" v-model="product.description"></textarea>
                 </div>
                 <div class="mb-3 mt-2">
-                  <label for="productImage" class="form-label">商品主要圖片<span class="text-danger">(必填)</span></label>
+                  <label for="productImage" class="form-label">商品主要圖片</label>
                   <div class="input-group">
                     <input type="file" class="form-control" id="productImage" placeholder="請選擇圖片" aria-describedby="inputGroupFileAddon04" aria-label="Upload">
                     <button class="btn btn-primary" type="button" @click="uploadImage">上傳檔案</button>
@@ -356,7 +359,7 @@
             .then(res => {
               if (res.data.success) {
                 this.$emit('getProduct');
-                // this.alertInfo = true;
+                this.$emit('alertFeedback');
                 this.hideModal();
               } else {
                 alert('刪除商品錯誤');
