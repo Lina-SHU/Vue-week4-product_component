@@ -311,8 +311,8 @@
                   <div class="input-group">
                     <input type="file" class="form-control" id="productImage" placeholder="請選擇圖片" aria-describedby="inputGroupFileAddon04" aria-label="Upload">
                     <button class="btn btn-primary" type="button" @click="uploadImage">上傳檔案</button>
-                    <img :src="product.imageUrl" alt="img" v-if="product.imageUrl" class='img-fluid mt-2'>
                   </div>
+                  <img :src="product.imageUrl" alt="img" v-if="product.imageUrl" class='img-fluid mt-2'>
                 </div>
                 <div class="form-check">
                   <input class="form-check-input" type="checkbox" value="product['is_enabled']" id="enabled" v-model="product['is_enabled']" :true-value='1' :false-value='0'>
