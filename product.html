@@ -145,6 +145,9 @@
         },
         feedback(){
           this.feedbackInfo = true;
+          setTimeout(()=>{
+            this.hideFeedback();
+          }, 5000);
         },
         hideFeedback(){
           this.feedbackInfo = false;
@@ -152,6 +155,9 @@
         },
         alertFeedback(){
           this.alertInfo = true;
+          setTimeout(() => {
+            this.hideFeedback();
+          }, 5000);
         }
       },
       mounted() {
